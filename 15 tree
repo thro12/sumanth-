@@ -1,0 +1,192 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure
+struct Node {
+    int data;
+    struct Node *left;
+    struct Node *right;
+};
+
+// Function to create a new node
+struct Node* createNode(int key) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = key;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert a new node
+struct Node* insert(struct Node* root, int key) {
+    if (root == NULL)
+        return createNode(key);
+
+    if (key < root->data)
+        root->left = insert(root->left, key);
+    else // Greater than or equal to root goes to the right
+        root->right = insert(root->right, key);
+
+    return root;
+}
+
+// Function to perform in-order traversal
+void inorder(struct Node* root) {
+    if (root != NULL) {
+        inorder(root->left);
+        printf("%d ", root->data);
+        inorder(root->right);
+    }
+}
+
+// Function to perform pre-order traversal
+void preorder(struct Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+
+// Function to perform post-order traversal
+void postorder(struct Node* root) {
+    if (root != NULL) {
+        postorder(root->left);
+        postorder(root->right);
+        printf("%d ", root->data);
+    }
+}
+
+// Function to search for a node with a given key
+struct Node* search(struct Node* root, int key) {
+    if (root == NULL || root->data == key)
+        return root;
+
+    if (key < root->data)
+        return search(root->left, key);
+
+    return search(root->right, key);
+}
+
+// Function to find minimum value node
+struct Node* minValueNode(struct Node* node) {
+    struct Node* current = node;
+
+    while (current && current->left != NULL)
+        current = current->left;
+
+    return current;
+}
+
+// Function to delete a node with a given key
+struct Node* deleteNode(struct Node* root, int key) {
+    if (root == NULL)
+        return root;
+
+    if (key < root->data)
+        root->left = deleteNode(root->left, key);
+    else if (key > root->data)
+        root->right = deleteNode(root->right, key);
+    else {
+        if (root->left == NULL) {
+            struct Node* temp = root->right;
+            free(root);
+            return temp;
+        }
+        else if (root->right == NULL) {
+            struct Node* temp = root->left;
+            free(root);
+            return temp;
+        }
+
+        struct Node* temp = minValueNode(root->right);
+        root->data = temp->data;
+        root->right = deleteNode(root->right, temp->data);
+    }
+    return root;
+}
+
+// Function to display menu
+void displayMenu() {
+    printf("\nBinary Search Tree Operations\n");
+    printf("1. Insert\n");
+    printf("2. In-order Traversal\n");
+    printf("3. Pre-order Traversal\n");
+    printf("4. Post-order Traversal\n");
+    printf("5. Search\n");
+    printf("6. Delete\n");
+    printf("7. Display\n");
+    printf("8. Exit\n");
+}
+
+// Function to display the binary search tree
+void display(struct Node* root, int level) {
+    if (root != NULL) {
+        display(root->right, level + 1);
+        printf("\n");
+        if (root == NULL)
+            return;
+        for (int i = 0; i < level; i++)
+            printf("    ");
+        printf("%d", root->data);
+        display(root->left, level + 1);
+    }
+}
+
+int main() {
+    struct Node* root = NULL;
+    int choice, key;
+
+    do {
+        displayMenu();
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1:
+                printf("Enter key to insert: ");
+                scanf("%d", &key);
+                root = insert(root, key);
+                break;
+            case 2:
+                printf("In-order Traversal: ");
+                inorder(root);
+                printf("\n");
+                break;
+            case 3:
+                printf("Pre-order Traversal: ");
+                preorder(root);
+                printf("\n");
+                break;
+            case 4:
+                printf("Post-order Traversal: ");
+                postorder(root);
+                printf("\n");
+                break;
+            case 5:
+                printf("Enter key to search: ");
+                scanf("%d", &key);
+                if (search(root, key) != NULL)
+                    printf("Key found\n");
+                else
+                    printf("Key not found\n");
+                break;
+            case 6:
+                printf("Enter key to delete: ");
+                scanf("%d", &key);
+                root = deleteNode(root, key);
+                break;
+            case 7:
+                printf("Displaying Binary Search Tree:\n");
+                display(root, 1);
+                printf("\n");
+                break;
+            case 8:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice\n");
+        }
+    } while(choice != 8);
+
+    return 0;
+}
