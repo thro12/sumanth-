@@ -1,0 +1,67 @@
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+int graph[MAX][MAX], visited[MAX], path[MAX], stack[MAX], top = -1;
+int hasCycle = 0;  // Variable to track if a cycle is detected
+
+void dfs(int n, int start) {
+    visited[start] = 1;  // Mark the current node as visited
+    path[start] = 1;     // Mark the current node as part of the current path
+
+    for (int i = 0; i < n; i++) {
+        if (graph[start][i]) {  // If there is an edge from start to i
+            if (visited[i] == 1 && path[i] == 1) {
+                // Detected a cycle
+                hasCycle = 1;
+            }
+            if (visited[i] == 0) {
+                dfs(n, i);
+            }
+        }
+    }
+
+    path[start] = 0;  // Unmark the current node from the current path
+    stack[++top] = start;  // Push the node onto the stack for topological order
+}
+
+int main() {
+    int n;
+
+    printf("Enter the number of vertices:\n");
+    scanf("%d", &n);
+
+    printf("Enter the adjacency matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &graph[i][j]);
+        }
+        visited[i] = 0;  // Initialize all nodes as unvisited
+        path[i] = 0;     // Initialize all nodes as not part of any path
+    }
+
+    // Perform DFS for all nodes
+    for (int i = 0; i < n; i++) {
+        if (visited[i] == 0) {
+            dfs(n, i);
+        }
+    }
+
+    // If a cycle is detected, print the appropriate message
+    if (hasCycle) {
+        printf("IT HAS A LOOP SO NO TOPOLOGICAL ORDER\n");
+        return 0;
+    }
+
+    // Print the topological order (from stack)
+    printf("\nTopological Order:\n");
+    while (top >= 0) {
+        printf(" --> %c", stack[top--] + 65);  // Convert node number to corresponding letter
+    }
+    printf("\n");
+
+    return 0;
+}
