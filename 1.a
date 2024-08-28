@@ -1,1 +1,79 @@
+#include<stdio.h>
 
+// Euclid's Algorithm
+int euclid(int m, int n) {
+    int count = 0, r;
+    while (n) {
+        r = m % n;
+        count++;
+        m = n;
+        n = r;
+    }
+    printf("GCD is %d\n", m);
+    return count;
+}
+
+// Consecutive Integer Checking Algorithm
+int consec(int m, int n) {
+    int count = 0, min;
+    min = (m < n) ? m : n;
+    while (min) {
+        count++;
+        if (m % min == 0 && n % min == 0) {
+            printf("GCD is %d\n", min);
+            return count;
+        }
+        min--;
+    }
+    return count;
+}
+
+// Modified Euclid's Algorithm
+int modified(int m, int n) {
+    int count = 0, t;
+    while (n) {
+        if (n > m) {
+            t = m;
+            m = n;
+            n = t;
+        }
+        m = m - n;
+        count++;
+    }
+    printf("GCD is %d\n", m);
+    return count;
+}
+
+// Main function
+void main() {
+    int ch, m, n;
+    for (;;) {
+        printf("1. Euclid\n2. Consecutive\n3. Modified\n0. To exit\nEnter your choice: ");
+        scanf("%d", &ch);
+        
+        if (ch != 0) {
+            printf("Enter m and n: ");
+            scanf("%d %d", &m, &n);
+
+            switch (ch) {
+                case 1:
+                    printf("Euclid's Algorithm:\n");
+                    euclid(m, n);
+                    break;
+                case 2:
+                    printf("Consecutive Integer Checking Algorithm:\n");
+                    consec(m, n);
+                    break;
+                case 3:
+                    printf("Modified Euclid's Algorithm:\n");
+                    modified(m, n);
+                    break;
+                default:
+                    printf("Invalid choice, please try again.\n");
+                    break;
+            }
+        } else {
+            return; // Exit the program
+        }
+    }
+}
