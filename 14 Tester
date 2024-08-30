@@ -1,0 +1,113 @@
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 10
+
+int n, i, j, cost[MAX][MAX], cnt = 0, visited[MAX], removed[MAX];
+int heapsize = 0;
+
+struct edge {
+    int v;
+    int dist;
+    int u;
+} heap[MAX], VT[MAX];
+
+typedef struct edge edg;
+
+// Min Heap function declarations
+void swap(struct edge *a, struct edge *b) {
+    struct edge temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void heapify(struct edge arr[], int n, int i) {
+    int smallest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    
+    if (left < n && arr[left].dist < arr[smallest].dist)
+        smallest = left;
+    if (right < n && arr[right].dist < arr[smallest].dist)
+        smallest = right;
+    if (smallest != i) {
+        swap(&arr[i], &arr[smallest]);
+        heapify(arr, n, smallest);
+    }
+}
+
+void heapSort(struct edge arr[], int n) {
+    for (int i = n / 2 - 1; i >= 0; i--) {
+        heapify(arr, n, i);
+    }
+}
+
+void makegraph() {
+    // Make Graph
+    printf("Enter the total number of vertices: ");
+    scanf("%d", &n);
+    printf("Enter the cost matrix of the Graph\n");
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            scanf("%d", &cost[i][j]);
+            if (cost[i][j] == 0)
+                cost[i][j] = INT_MAX;
+        }
+    }
+}
+
+edg deleteheap(edg heap[]) {
+    edg min = heap[0];
+    heap[0] = heap[--heapsize];
+    heapify(heap, heapsize, 0);
+    return min;
+}
+
+void prim() {
+    // Initialize the heap
+    visited[0] = 1;
+    heap[heapsize].v = -1;
+    heap[heapsize].u = 0;
+    heap[heapsize].dist = 0;
+    heapsize++;
+
+    while (cnt != n) {
+        edg min = deleteheap(heap);
+        VT[cnt++] = min;
+        int v = min.u;
+        removed[v] = 1;
+
+        for (i = 0; i < n; i++) {
+            if (!visited[i] && cost[v][i] != INT_MAX && !removed[i]) {
+                visited[i] = 1;
+                heap[heapsize].v = v;
+                heap[heapsize].u = i;
+                heap[heapsize].dist = cost[v][i];
+                heapsize++;
+            } else if (visited[i] && cost[v][i] != INT_MAX && !removed[i]) {
+                for (j = 0; j < heapsize; j++) {
+                    if (heap[j].u == i && cost[v][i] < heap[j].dist) {
+                        heap[j].dist = cost[v][i];
+                        heap[j].v = v;
+                        break;
+                    }
+                }
+            }
+        }
+
+        heapSort(heap, heapsize); // sorting after deletions and value modifications
+    }
+}
+
+int main() {
+    int sum = 0;
+    makegraph();
+    prim();
+    for (int i = 1; i < cnt; i++) {
+        printf("%c --> %c == %d\n", VT[i].v + 65, VT[i].u + 65, VT[i].dist);
+        sum += VT[i].dist;
+    }
+    printf("Minimum Distance is: %d\n", sum);
+    return 0;
+}
