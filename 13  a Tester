@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+int t[MAX][MAX], v[MAX], w[MAX], n, m, i, j;
+
+int knap(int i, int j) {
+    if (t[i][j] != -1) {  // Check if the value is already computed
+        return t[i][j];
+    }
+
+    if (i == 0 || j == 0) {
+        t[i][j] = 0;  // Base case: No items or no capacity
+    } else if (j < w[i]) {
+        t[i][j] = knap(i - 1, j);  // Skip the item
+    } else {
+        // Take the maximum of not taking or taking the current item
+        t[i][j] = max(knap(i - 1, j), v[i] + knap(i - 1, j - w[i]));
+    }
+    
+    return t[i][j];
+}
+
+int main() {
+    printf("No. of Items>> ");
+    scanf("%d", &n);
+    printf("Sack Capacity>> ");
+    scanf("%d", &m);
+    
+    printf("Weight\tValue\n");
+    for (i = 1; i <= n; i++) {
+        scanf("%d %d", &w[i], &v[i]);
+    }
+    
+    // Initialize the memoization table
+    for (i = 0; i <= n; i++) {
+        for (j = 0; j <= m; j++) {
+            t[i][j] = -1;
+        }
+    }
+    
+    // Solve the knapsack problem
+    printf("Maximum Value: %d\n", knap(n, m));
+    
+    // Print the memoization table
+    for (i = 0; i <= n; i++) {
+        for (j = 0; j <= m; j++) {
+            printf("%d ", t[i][j]);
+        }
+        printf("\n");
+    }
+    
+    // Find and print the composition of items
+    printf("Composition:\n");
+    for (i = n; i > 0; i--) {
+        if (t[i][m] != t[i - 1][m]) {
+            printf("%d ", i);
+            m = m - w[i];
+        }
+    }
+    printf("\n");
+
+    return 0;
+}
