@@ -77,3 +77,12 @@ void main() {
         }
     }
 }
+
+//gnuplot 
+set title 'euclid'
+set xrange [     ]
+set yrange [     ] 
+set xlabel 'input size'
+set ylabel 'operation count'
+set style data linespoints
+plot 'e_b.txt' title 'best case', 'e_w.txt' title 'worst case'
