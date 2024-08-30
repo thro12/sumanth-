@@ -1,0 +1,113 @@
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_VERTICES 10
+
+int n, i, j, src, cost[MAX_VERTICES][MAX_VERTICES], d[MAX_VERTICES] = {0}, removed[MAX_VERTICES] = {0};
+typedef struct vertex {
+    int id;
+    int dist;
+} vertex;
+
+vertex heap[MAX_VERTICES];
+int heapSize;
+
+// Min Heap function declarations
+void swap(vertex *a, vertex *b) {
+    vertex temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void heapify(int i) {
+    int smallest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    if (left < heapSize && heap[left].dist < heap[smallest].dist) {
+        smallest = left;
+    }
+    if (right < heapSize && heap[right].dist < heap[smallest].dist) {
+        smallest = right;
+    }
+    if (smallest != i) {
+        swap(&heap[i], &heap[smallest]);
+        heapify(smallest);
+    }
+}
+
+vertex extractMin() {
+    if (heapSize == 0) {
+        vertex v = { -1, -1 }; // or any value indicating the heap is empty
+        return v;
+    }
+    vertex min = heap[0];
+    heap[0] = heap[heapSize - 1];
+    heapSize--;
+    heapify(0);
+    return min;
+}
+
+void decreaseKey(int id, int newDist) {
+    for (int i = 0; i < heapSize; i++) {
+        if (heap[i].id == id) {
+            heap[i].dist = newDist;
+            while (i && heap[(i - 1) / 2].dist > heap[i].dist) {
+                swap(&heap[i], &heap[(i - 1) / 2]);
+                i = (i - 1) / 2;
+            }
+            return;
+        }
+    }
+}
+
+void makeGraph() {
+    printf("Enter the total number of vertices: ");
+    scanf("%d", &n);
+    printf("Enter the cost matrix of the Graph:\n");
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            scanf("%d", &cost[i][j]);
+            if (cost[i][j] == 0) {
+                cost[i][j] = INT_MAX;
+            }
+        }
+    }
+    printf("Enter the source vertex: ");
+    scanf("%d", &src);
+    for (i = 0; i < n; i++) {
+        d[i] = INT_MAX;
+        heap[i].id = i;
+        heap[i].dist = INT_MAX;
+    }
+    d[src] = 0;
+    heap[src].dist = 0;
+    heapSize = n;
+}
+
+void dijkstra() {
+    while (heapSize > 0) {
+        vertex minVertex = extractMin();
+        int u = minVertex.id;
+        removed[u] = 1;
+
+        for (i = 0; i < n; i++) {
+            if (!removed[i] && cost[u][i] != INT_MAX && d[u] != INT_MAX && d[u] + cost[u][i] < d[i]) {
+                d[i] = d[u] + cost[u][i];
+                decreaseKey(i, d[i]);
+            }
+        }
+    }
+}
+
+int main() {
+    makeGraph();
+    dijkstra();
+    printf("Shortest path from vertex %d is:\n", src);
+    for (i = 0; i < n; i++) {
+        if (src != i) {
+            printf("%d -> %d = %d\n", src, i, d[i]);
+        }
+    }
+    return 0;
+}
